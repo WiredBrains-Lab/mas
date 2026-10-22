@@ -1,0 +1,56 @@
+# HPC configuration for Zenodo MEG Picture Naming: Source-Space Decoding.
+#
+# Run from the MAS project root:
+#   python -u scripts/run_concept_decoding_cli.py \
+#     --config configs/decoding.zenodo-source.hpc.toml
+
+# Path to the trial table (trials_step1_visual.csv, trials_step3_covert.csv, or trials_all_steps.csv)
+trial_table = "/scratch/g/bgross/CIDMEG_SM/data/meg_picture_naming/trials_step1_visual.csv"
+
+# Output directory for source-space decoding derivatives
+output_dir = "/scratch/g/bgross/CIDMEG_SM/data/meg_picture_naming/decoding_results_source"
+
+# Source-space feature extraction options
+feature_space = "source"
+source_space_kind = "surface"      # "surface" (aparc/HCP-MMP) or "volume" (aparc+aseg)
+source_common_space = "native"     # "native" or "fsaverage"
+source_parcellation = "aparc"      # Desikan-Killiany surface parcellation
+source_method = "MNE"              # Inverse solution method: "MNE", "dSPM", or "sLORETA"
+source_snr = 3.0
+source_batch_size = 4
+source_workers = 4
+source_worker_threads = 2
+
+# Source manifest: relative to this config file (in configs/)
+source_manifest = "decoding.source.zenodo.hpc.json"
+
+# Spectral bandpower settings
+feature_mode = "bandpower"
+source_power_bands = ["alpha", "beta"]   # Linguistic/naming oscillatory power dynamics
+source_power_baseline = true
+parcel_baseline_start = -0.2
+parcel_baseline_end = 0.0
+no_feature_binning = false
+bin_size_ms = 50.0
+
+# Temporal window for lexical/semantic processing (seconds relative to cue)
+window_start = 0.15
+window_end = 0.45
+
+# Preprocessing
+bandpass_low_hz = 0.1
+bandpass_high_hz = 150.0
+downsample = true
+downsample_sfreq = 400.0
+
+# Classification model
+group_mode = "category"            # "category" (food vs tool) or "individual"
+decoder = "logistic"               # "logistic", "pairwise_svm", or "mlp"
+epochs = 30
+split_mode = "random"
+test_fraction = 0.2
+validation_fraction = 0.2
+min_trials_per_class = 2
+
+# Persistent cache for parcel time courses
+epoch_cache_dir = "/scratch/g/bgross/CIDMEG_SM/mas_epoch_cache"

@@ -1,0 +1,125 @@
+# CIDMEG005 volume-space beta-only (13–30 Hz) concept decoding with Linear Ridge Regression on RCC/HPC.
+# Run from the MAS project root in the decoding Python environment:
+# python -u scripts/run_concept_decoding_cli.py --config configs/decoding.source-volume-beta-ridge.hpc.toml --dry-run
+#
+# One 48-CPU node: extraction uses 12 processes x 4 threads; screening uses 48 x 1.
+# Remove --dry-run to train/test. Empty output_dir creates a fresh folder each run.
+#
+# Required uploads / paths on cluster:
+# - all 12 ICA/*_raw.fif files
+# - inverse/*-vol-inv.fif
+# - CIDMEG005/Anatomy (including mri/HCPMMP1_combined+aseg.mgz, aparc+aseg.mgz, or HCPMMP1+aseg.mgz)
+# - trial tables/events logs
+# - semantic embedding dictionary (OpenAI text-embedding-3-large)
+# - source manifest (configs/decoding.source-volume.cidmeg005.hpc.json)
+#
+# Prerequisite if using HCP parcellation in volume space:
+# run scripts/create_hcp_volumetric_atlas.slurm first so that
+# CIDMEG005/Anatomy/mri/HCPMMP1_combined+aseg.mgz (or HCPMMP1+aseg.mgz) exists.
+
+# Explicit files match saved inverse metadata and exclude duplicate derivatives.
+fif = [
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run1_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run2_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run3_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run4_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run5_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run6_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run1_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run2_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run3_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run4_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run5_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run6_raw.fif",
+]
+all_runs = false
+ica = "off"
+rebuild_trial_table = false
+output_dir = ""
+
+# Source configuration
+feature_space = "source"
+source_space_kind = "volume"
+# Relative to this config file (in configs/)
+source_manifest = "decoding.source-volume.cidmeg005.hpc.json"
+source_common_space = "native"
+
+# Parcellation options:
+# - "HCPMMP1_combined": 22 regions/hemi + subcortical aseg (requires create_hcp_volumetric_atlas.slurm).
+# - "HCPMMP1": 180 regions/hemi + subcortical aseg (use subset_search = "backward").
+# - "aparc": standard FreeSurfer aparc+aseg.mgz (default 19 left-hemisphere semantic ROIs).
+source_parcellation = "HCPMMP1_combined"
+source_method = "MNE"
+source_snr = 3.0
+source_batch_size = 4
+source_workers = 12
+source_worker_threads = 4
+max_rois = 0
+
+# Subset Screening:
+# With HCPMMP1_combined, source_parcel_filter = "semantic" and source_hemisphere = "left"
+# produces 7 semantic ROIs (127 exhaustive models), which runs rapidly on 48 workers.
+# For full HCPMMP1 (>60 semantic ROIs), use subset_search = "backward" instead.
+subset_search = "exhaustive"
+subset_workers = 48
+subset_worker_threads = 1
+source_parcel_filter = "semantic" # all, visual, semantic, visual_semantic
+source_hemisphere = "left"       # both, left, right
+
+# Frequency and temporal feature settings
+feature_mode = "bandpower"
+source_power_bands = ["beta"]     # 13–30 Hz
+source_power_baseline = true
+parcel_baseline_start = -0.2
+parcel_baseline_end = 0.0
+window_start = 0.15
+window_end = 0.45
+no_feature_binning = false
+bin_size_ms = 50.0
+# Automatic padding: max(0.5, 3/lowest band edge) seconds per side.
+bandpass_low_hz = 0.1
+bandpass_high_hz = 150.0
+downsample = true
+downsample_sfreq = 400.0
+
+# Baseline dB is applied to source power; sensor mean subtraction is bypassed.
+no_baseline = true
+no_mne_epoch_reject = false
+reject_mag_ft = 4000.0
+reject_grad_ft_cm = 4000.0
+include_trial_outliers = false
+trial_outlier_z = 6.0
+min_trials_for_outlier_qc = 8
+
+# Semantic Decoder: Linear Ridge Regression
+group_mode = "canonical"
+decoder = "embedding_ridge"
+embedding_ridge_alpha = 100.0    # L2 regularization strength (e.g. 1.0, 10.0, 100.0, 1000.0)
+embedding_dict = "/scratch/g/bgross/CIDMEG_SM/data/concept_embeddings/concept_embeddings_openai_text-embedding-3-large_CIDMEG_005_runmulti_20261002_112353.json"
+
+# Evaluation and Cross-Validation
+# Hold out entire concepts to evaluate zero-shot generalization.
+split_mode = "zero_shot"
+test_fraction = 0.2
+validation_fraction = 0.2
+epochs = 30
+# Averaged pseudo-epochs: 5 for strict 5-way task balancing (1 trial each from all 5 decisions)
+avg_trials = 5
+task_stratified_pseudo_epochs = true
+batch_size = 16
+embedding_input_pca_components = 256
+embedding_target_svd_components = 40
+balance_classes = true
+embedding_validation_metric = "balanced_mpr"
+
+# Permutations (0 for initial screening, increase for inference)
+n_permutations = 0
+epoch_cache_dir = "/scratch/g/bgross/CIDMEG_SM/mas_epoch_cache"
+
+# Persistent feature cache
+source_feature_cache = true
+rebuild_source_features = false
+torch_num_threads = 1
+no_plots = true
+allow_missing_fif = false
+path_map = []

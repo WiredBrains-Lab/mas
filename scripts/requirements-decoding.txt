@@ -1,0 +1,13 @@
+# Baseline signal decoding CLI, Python >=3.11. No GUI dependencies.
+# Source decoding additionally needs h5py; volume atlas IO needs nibabel.
+# Use the tested local environment first; freeze its versions for reproduction.
+numpy
+pandas
+scipy
+scikit-learn
+mne>=1.6
+matplotlib
+joblib
+# Optional: torch for neural decoders; h5py for HDF5 embeddings;
+# openpyxl for Excel trial tables; pyarrow for Parquet trial tables;
+# external CIDECoG decoder sources for transformer configurations that need them.

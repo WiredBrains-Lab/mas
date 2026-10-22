@@ -1,0 +1,67 @@
+# HPC configuration for Zenodo MEG Picture Naming: Temporal Window Sweep.
+#
+# Used by scripts/run_temporal_window_sweep.py to decode across sliding 50 ms time bins
+# from -200 ms to +800 ms, tracking the exact millisecond timecourse of semantic representation.
+#
+# Run from the MAS project root:
+#   python -u scripts/run_temporal_window_sweep.py \
+#     --sweep-output /scratch/g/bgross/CIDMEG_SM/data/meg_picture_naming/temporal_sweep_category \
+#     --sweep-start -0.2 \
+#     --sweep-stop 0.8 \
+#     --window-width-ms 50 \
+#     --step-ms 25 \
+#     -- \
+#     --config configs/decoding.zenodo-temporal.hpc.toml
+
+# Visual image presentation trial table
+trial_table = "/scratch/g/bgross/CIDMEG_SM/data/meg_picture_naming/trials_step1_visual.csv"
+
+# Output directory is managed dynamically per-window by run_temporal_window_sweep.py
+output_dir = ""
+
+# Decoding classification target: 2-class food vs. tool
+group_mode = "category"
+
+# Decoder choice
+decoder = "logistic"
+epochs = 30
+
+# Cross-validation / data split
+split_mode = "random"
+test_fraction = 0.2
+validation_fraction = 0.2
+min_trials_per_class = 2
+
+# Window boundaries (placeholders; overridden dynamically by the sweep wrapper)
+window_start = -0.2
+window_end = 0.8
+
+# Channel selection: all 64 MEG channels
+channel_mode = "all"
+max_channels = 0
+
+# Signal preprocessing & feature extraction
+bandpass_low_hz = 0.1
+bandpass_high_hz = 150.0
+downsample = true
+downsample_sfreq = 400.0
+no_feature_binning = false
+bin_size_ms = 50.0
+
+# Baseline correction & artifact rejection
+no_baseline = false
+no_mne_epoch_reject = false
+reject_mag_ft = 5000.0
+reject_grad_ft_cm = 5000.0
+include_trial_outliers = false
+trial_outlier_z = 6.0
+min_trials_for_outlier_qc = 8
+
+# Zero permutations per window for the sweep ensures fast execution (<15 min total)
+n_permutations = 0
+
+# Persistent cache directory for continuous downsampled/filtered recordings
+epoch_cache_dir = "/scratch/g/bgross/CIDMEG_SM/mas_epoch_cache"
+
+# Threads per task
+torch_num_threads = 4

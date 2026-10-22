@@ -1,0 +1,122 @@
+# CIDMEG005 surface-space beta-only (13–30 Hz) concept decoding with HCP-MMP combined parcellation on RCC/HPC.
+# Run from the MAS project root in the decoding Python environment:
+# python -u scripts/run_concept_decoding_cli.py --config configs/decoding.source-hcp-combined-beta.hpc.toml --dry-run
+#
+# HCP-MMP combined (HCPMMP1_combined) is a cortical surface parcellation (Glasser et al. 2016)
+# defined on the fsaverage surface mesh. Surface source decoding morphs subject source estimates
+# to fsaverage and extracts regional time courses using surface inverse operators (*-inv.fif).
+#
+# Worker / resource allocation:
+# Extraction uses 12 processes x 4 threads; subset search uses 48 x 1.
+# Remove --dry-run to train/test. Empty output_dir creates a fresh folder each run.
+#
+# Required uploads: all 12 ICA/*_raw.fif files, inverse/*-inv.fif,
+# CIDMEG005/Anatomy (with FreeSurfer surface reconstructions), fsaverage template,
+# trial tables/events logs, the embedding dictionary, and the source manifest next to this TOML.
+
+# Explicit files match saved inverse metadata and exclude duplicate derivatives.
+fif = [
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run1_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run2_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run3_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run4_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run5_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run6_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run1_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run2_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run3_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run4_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run5_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run6_raw.fif",
+]
+all_runs = false
+ica = "off"
+rebuild_trial_table = false
+output_dir = ""
+
+feature_space = "source"
+source_space_kind = "surface"
+# Relative to this config file (in configs/)
+source_manifest = "decoding.source-surface.cidmeg005.hpc.json"
+source_common_space = "fsaverage"
+source_parcellation = "HCPMMP1_combined"
+source_method = "MNE"
+source_snr = 3.0
+source_batch_size = 4
+source_workers = 12
+source_worker_threads = 4
+max_rois = 0
+
+# ROI Pool and Subset Search:
+# HCP-MMP combined contains 22 regions per hemisphere (44 bilateral).
+# - source_parcel_filter = "semantic", hemisphere = "left" -> 7 ROIs (127 exhaustive models)
+# - source_parcel_filter = "visual_semantic", hemisphere = "left" -> 12 ROIs (4,095 exhaustive models)
+# - source_parcel_filter = "all", hemisphere = "left" -> 22 ROIs (4,194,303 exhaustive models)
+# - source_hemisphere = "both" doubles the pool to 44 ROIs (use forward/greedy search or explicit ROIs)
+subset_search = "exhaustive"
+subset_workers = 48
+subset_worker_threads = 1
+source_parcel_filter = "semantic" # all, visual, semantic, visual_semantic
+source_hemisphere = "left"       # both, left, right
+# Optional source_parcels = [...] restricts the pool before these filters apply.
+
+feature_mode = "bandpower"
+source_power_bands = ["beta"]
+# Alternatives: ["alpha"] for a single band, or ["alpha", "beta"], or ["all"] for all valid bands.
+source_power_baseline = true
+parcel_baseline_start = -0.2
+parcel_baseline_end = 0.0
+window_start = 0.15
+window_end = 0.45
+no_feature_binning = false
+bin_size_ms = 50.0
+# Automatic padding: max(0.5, 3/lowest band edge) seconds per side.
+bandpass_low_hz = 0.1
+bandpass_high_hz = 150.0
+downsample = true
+downsample_sfreq = 400.0
+
+# Baseline dB is applied to source power; sensor mean subtraction is bypassed.
+no_baseline = true
+no_mne_epoch_reject = false
+reject_mag_ft = 4000.0
+reject_grad_ft_cm = 4000.0
+include_trial_outliers = false
+trial_outlier_z = 6.0
+min_trials_for_outlier_qc = 8
+
+# Match the existing HPC contrastive semantic-decoding model settings.
+group_mode = "canonical"
+decoder = "embedding_contrastive"
+embedding_dict = "/scratch/g/bgross/CIDMEG_SM/data/concept_embeddings/concept_embeddings_openai_text-embedding-3-large_CIDMEG_005_runmulti_20261002_112353.json"
+# Hold out entire concepts to evaluate zero-shot generalization.
+split_mode = "zero_shot"
+test_fraction = 0.2
+validation_fraction = 0.2
+min_trials_per_class = 2
+epochs = 30
+# Averaged pseudo-epochs: set 5 for strict 5-way task balancing (1 trial each from all 5 decisions),
+# or 6 for proportional balancing (2 Animal + 1 each other, using 100% of trials).
+avg_trials = 5
+task_stratified_pseudo_epochs = true
+batch_size = 16
+contrastive_temperature = 0.07
+contrastive_weight_decay = 0.01
+contrastive_learning_rate = 0.001
+embedding_input_pca_components = 256
+embedding_target_svd_components = 40
+embedding_early_stopping_patience = 6
+embedding_early_stopping_min_delta = 0.0001
+balance_classes = true
+embedding_validation_metric = "balanced_mpr"
+
+# Initial exploratory run; increase permutations for subsequent inference.
+n_permutations = 0
+epoch_cache_dir = "/scratch/g/bgross/CIDMEG_SM/mas_epoch_cache"
+# Persist all supported atlas ROIs in feature cache.
+source_feature_cache = true
+rebuild_source_features = false
+torch_num_threads = 1
+no_plots = true
+allow_missing_fif = false
+path_map = []

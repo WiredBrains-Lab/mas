@@ -1,0 +1,125 @@
+# CIDMEG005 volume-source beta-only (13–30 Hz) concept decoding on RCC/HPC.
+# Run from the MAS project root in the decoding Python environment:
+# python -u scripts/run_concept_decoding_cli.py --config configs/decoding.source-volume-beta.hpc.toml --dry-run
+# One 48-CPU node: extraction uses 12 processes x 4 threads; screening uses 48 x 1.
+# Remove --dry-run to train/test. Empty output_dir creates a fresh folder each run.
+# Required uploads: all 12 ICA/*_raw.fif files, inverse/*-vol-inv.fif,
+# CIDMEG005/Anatomy (including mri/aparc+aseg.mgz), trial tables/events logs,
+# the embedding dictionary, and the source manifest next to this TOML.
+# Source dependencies beyond baseline CLI requirements: h5py and nibabel.
+# Paths use the /scratch/g/bgross/CIDMEG_SM layout from decoding.concepts.hpc.toml.
+# Linux paths are case-sensitive: this config uses ICA/ and Anatomy/.
+# If the cluster layout differs, update these paths AND the manifest paths.
+
+# Explicit files match saved inverse metadata and exclude duplicate derivatives.
+fif = [
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run1_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run2_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run3_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run4_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run5_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run6_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run1_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run2_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run3_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run4_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run5_raw.fif",
+  "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run6_raw.fif",
+]
+all_runs = false
+ica = "off"
+rebuild_trial_table = false
+output_dir = ""
+
+feature_space = "source"
+source_space_kind = "volume"
+# Relative to this config file, not the shell working directory.
+source_manifest = "decoding.source-volume.cidmeg005.hpc.json"
+source_common_space = "native"
+# Volume decoding always uses aparc+aseg (the surface atlas setting is ignored).
+source_parcellation = "aparc"
+source_method = "MNE"
+source_snr = 3.0
+source_batch_size = 4
+source_workers = 12
+source_worker_threads = 4
+max_rois = 0
+
+# Semantic preset shared with the GUI: 19 left-hemisphere volume ROIs.
+# Exhaustive: 524,287 models; still a large search.
+# Set source_hemisphere = "both" for 38 ROIs / 274,877,906,943 models.
+subset_search = "exhaustive"
+subset_workers = 48
+subset_worker_threads = 1
+source_parcel_filter = "semantic" # all, visual, semantic, visual_semantic
+source_hemisphere = "left"       # both, left, right
+# Optional source_parcels = [...] restricts the pool before these filters apply.
+
+
+feature_mode = "bandpower"
+source_power_bands = ["beta"]
+# Alternatives: ["alpha"] for a single band, or ["all"] for all valid bands.
+# All includes delta and requires more padding / memory and longer extraction.
+source_power_baseline = true
+parcel_baseline_start = -0.2
+parcel_baseline_end = 0.0
+window_start = 0.15
+window_end = 0.45
+no_feature_binning = false
+bin_size_ms = 50.0
+# Padding is automatic: max(0.5, 3/lowest band edge) seconds per side.
+# Output bin width does not determine the intrinsic temporal resolution.
+bandpass_low_hz = 0.1
+bandpass_high_hz = 150.0
+downsample = true
+downsample_sfreq = 400.0
+
+# Baseline dB is applied to source power; sensor mean subtraction is bypassed.
+no_baseline = true
+no_mne_epoch_reject = false
+reject_mag_ft = 4000.0
+reject_grad_ft_cm = 4000.0
+include_trial_outliers = false
+trial_outlier_z = 6.0
+min_trials_for_outlier_qc = 8
+
+# Match the existing HPC contrastive semantic-decoding model settings.
+group_mode = "canonical"
+decoder = "embedding_contrastive"
+embedding_dict = "/scratch/g/bgross/CIDMEG_SM/data/concept_embeddings/concept_embeddings_openai_text-embedding-3-large_CIDMEG_005_runmulti_20261002_112353.json"
+# Hold out entire concepts to evaluate zero-shot generalization.
+split_mode = "zero_shot"
+test_fraction = 0.2
+validation_fraction = 0.2
+epochs = 30
+# Averaged pseudo-epochs: set 5 for strict 5-way task balancing (1 trial each from all 5 decisions),
+# or 6 for proportional balancing (2 Animal + 1 each other, using 100% of trials).
+avg_trials = 5
+task_stratified_pseudo_epochs = true
+batch_size = 16
+contrastive_temperature = 0.07
+contrastive_weight_decay = 0.01
+contrastive_learning_rate = 0.001
+embedding_input_pca_components = 256
+embedding_target_svd_components = 40
+embedding_early_stopping_patience = 6
+embedding_early_stopping_min_delta = 0.0001
+balance_classes = true
+embedding_validation_metric = "balanced_mpr"
+
+# Initial exploratory run; increase permutations for subsequent inference.
+n_permutations = 0
+epoch_cache_dir = "/scratch/g/bgross/CIDMEG_SM/mas_epoch_cache"
+# Persist all supported atlas ROIs; source_parcels selects columns after loading.
+# ROI selections, training hyperparameters, and worker counts can change without
+# extraction. Different bands/windows/bins/baselines/preprocessing create new entries.
+# Automatic on laptop and HPC: CIDMEG005/source_feature_cache/bandpower.
+# Portable-format entries can be copied with matching data; contents are verified.
+# Leave the directory unset; optionally set source_feature_cache_dir to override.
+source_feature_cache = true
+rebuild_source_features = false
+# Match cpus-per-task; override with --torch-num-threads in Slurm if needed.
+torch_num_threads = 1
+no_plots = true
+allow_missing_fif = false
+path_map = []

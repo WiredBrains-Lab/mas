@@ -1,0 +1,89 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.env
+.env.*
+.venv
+env/
+venv/
+ENV/
+
+# macOS metadata
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows metadata
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Editor & IDE settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# Documentation builds
+docs/build/
+docs/_build/
+
+# Jupyter Notebook checkpoints & caches
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# Testing & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Large data, recordings, model weights, and experiment outputs
+outputs/
+merge_plots/
+tasks/experiments/
+*.npy
+*.npz
+*.pt
+*.pth
+*.h5
+*.hdf5
+*.mat
+*.log
+*.fif
+*.edf
+*.ns[1-9]
+*.nev
+*.nf[1-9]
+*.nii
+*.nii.gz
+
+# Sync and conflict artifacts
+*-DESKTOP-*
+* - Copy.*
+* (1).*
+*.bak
+*.tmp
+*.orig
+
+# Temporary and build dumps
+.codex*
+

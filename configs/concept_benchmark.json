@@ -1,0 +1,29 @@
+{
+  "reference_run": "",
+  "output_dir": "outputs/concept_benchmark",
+  "folds": 5,
+  "split_seed": 20261001,
+  "training_seeds": [42, 43, 44],
+  "null_permutations": 99,
+  "expected_concepts": 50,
+  "options": {
+    "window_start": 0.1,
+    "window_end": 0.4,
+    "bin_size_ms": 5.0,
+    "feature_mode": "mean",
+    "feature_binning_enabled": true,
+    "exclude_trial_outliers": false,
+    "max_source_features": 75000,
+    "max_rois": 0,
+    "transformer_trials_per_average": 3,
+    "embedding_input_pca_components": 256,
+    "embedding_target_svd_components": 40,
+    "embedding_dynamic_pseudo_epochs": true,
+    "embedding_validation_metric": "mpr",
+    "embedding_ridge_alpha": 1.0,
+    "embedding_early_stopping_patience": 6,
+    "transformer_epochs": 30,
+    "epochs": 30,
+    "n_permutations": 0
+  }
+}

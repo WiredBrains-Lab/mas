@@ -1,0 +1,103 @@
+# HPC configuration for the concept temporal-window sweep / decoding.
+#
+# REQUIRED BEFORE RUNNING:
+#   1. Replace every /HPC/PATH/... value below with a path on the cluster.
+#   2. Keep output_dir empty; run_temporal_window_sweep.py supplies one per task.
+#
+# Preflight:
+# python -u scripts/run_concept_decoding_cli.py \
+#   --config configs/decoding.concepts.hpc.toml --dry-run \
+#   --output-dir /scratch/g/bgross/CIDMEG_SM/concepts_preflight
+
+# Process every raw FIF directly inside this folder (nonrecursive). This is
+# expected to point to already-cleaned ICA data, so ICA is disabled below.
+fif_folder = "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA"
+all_runs = true
+ica = "off"
+rebuild_trial_table = false
+
+# The temporal sweep wrapper assigns a deterministic directory to each window.
+output_dir = ""
+
+# Canonical concept labels (50 concepts) mapped from stimulus/concept names.
+group_mode = "canonical"
+
+# Signal-space contrastive semantic decoder matching the recent local runs.
+decoder = "embedding_contrastive"
+embedding_dict = "/scratch/g/bgross/CIDMEG_SM/data/concept_embeddings/concept_embeddings_openai_text-embedding-3-large_CIDMEG_005_runmulti_20261002_112353.json"
+
+# The current embedding decoder supports random and zero-shot splits only.
+# Random splits evaluate generalization across trials of the same concepts;
+# zero-shot splits hold out entire unseen concepts.
+split_mode = "random"
+test_fraction = 0.2
+validation_fraction = 0.2
+min_trials_per_class = 2
+
+# Window values are placeholders. The temporal sweep wrapper overrides both.
+window_start = -0.2
+window_end = 0.6
+
+# Match the successful semantic-decision signal runs: gradiometers, 20-ms
+# Hilbert-power bins, 0.1-150 Hz filtering, and 400-Hz resampling.
+channel_mode = "grad"
+max_channels = 0
+bandpass_low_hz = 0.1
+bandpass_high_hz = 150.0
+downsample = true
+downsample_sfreq = 400.0
+no_feature_binning = false
+bin_size_ms = 20.0
+
+# Artifact/QC settings shared with the GUI runs.
+no_baseline = false
+no_mne_epoch_reject = false
+reject_mag_ft = 4000.0
+reject_grad_ft_cm = 4000.0
+include_trial_outliers = false
+trial_outlier_z = 6.0
+min_trials_for_outlier_qc = 8
+
+# Contrastive model settings matching the recent local semantic-decision runs.
+epochs = 30
+avg_trials = 5
+task_stratified_pseudo_epochs = true
+batch_size = 16
+contrastive_temperature = 0.07
+contrastive_weight_decay = 0.01
+contrastive_learning_rate = 0.001
+embedding_input_pca_components = 256
+embedding_target_svd_components = 40
+embedding_early_stopping_patience = 6
+embedding_early_stopping_min_delta = 0.0001
+mlp_dropout = 0.35
+
+# Equalize the number of training pseudo-epochs contributed by each concept.
+# Surplus trials rotate across dynamic epochs rather than being permanently
+# discarded. Validation/test retain every trial and the best epoch is selected
+# by macro-balanced MPR.
+balance_classes = true
+embedding_validation_metric = "balanced_mpr"
+
+# Set to 0 for the initial 38-window sweep. After identifying candidate
+# intervals, rerun those windows with 99 or more permutations for inference.
+n_permutations = 0
+
+# Put this on node-local or high-throughput scratch shared by the array jobs.
+# Continuous filtered/downsampled recordings are reused across windows.
+epoch_cache_dir = "/scratch/g/bgross/CIDMEG_SM/mas_epoch_cache"
+
+# Keep this aligned with Slurm --cpus-per-task. The array template also passes
+# --torch-num-threads, which safely overrides this value.
+torch_num_threads = 4
+
+# Used only when overriding decoder to pairwise_svm.
+pairwise_supertrial_size = 6
+pairwise_repeats = 100
+pairwise_random_state = 42
+pairwise_svm_c = 1.0
+
+# Plotting is normally disabled by the Slurm array command. Leave path remapping
+# empty unless uploaded trial tables still contain paths from another machine.
+path_map = []
+allow_missing_fif = false

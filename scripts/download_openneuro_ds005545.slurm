@@ -1,0 +1,1 @@
+download_auditory_naming_openneuro.slurm

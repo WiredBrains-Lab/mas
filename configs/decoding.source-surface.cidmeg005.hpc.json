@@ -1,0 +1,76 @@
+{
+  "runs": [
+    {
+      "fif": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run1_raw.fif",
+      "inverse": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/inverse/cidmeg005_s1_run1-inv.fif",
+      "subject": "Anatomy",
+      "subjects_dir": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005"
+    },
+    {
+      "fif": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run2_raw.fif",
+      "inverse": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/inverse/cidmeg005_s1_run2-inv.fif",
+      "subject": "Anatomy",
+      "subjects_dir": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005"
+    },
+    {
+      "fif": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run3_raw.fif",
+      "inverse": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/inverse/cidmeg005_s1_run3-inv.fif",
+      "subject": "Anatomy",
+      "subjects_dir": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005"
+    },
+    {
+      "fif": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run4_raw.fif",
+      "inverse": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/inverse/cidmeg005_s1_run4-inv.fif",
+      "subject": "Anatomy",
+      "subjects_dir": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005"
+    },
+    {
+      "fif": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run5_raw.fif",
+      "inverse": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/inverse/cidmeg005_s1_run5-inv.fif",
+      "subject": "Anatomy",
+      "subjects_dir": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005"
+    },
+    {
+      "fif": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s1_run6_raw.fif",
+      "inverse": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/inverse/cidmeg005_s1_run6-inv.fif",
+      "subject": "Anatomy",
+      "subjects_dir": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005"
+    },
+    {
+      "fif": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run1_raw.fif",
+      "inverse": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/inverse/cidmeg005_s2_run1-inv.fif",
+      "subject": "Anatomy",
+      "subjects_dir": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005"
+    },
+    {
+      "fif": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run2_raw.fif",
+      "inverse": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/inverse/cidmeg005_s2_run2-inv.fif",
+      "subject": "Anatomy",
+      "subjects_dir": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005"
+    },
+    {
+      "fif": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run3_raw.fif",
+      "inverse": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/inverse/cidmeg005_s2_run3-inv.fif",
+      "subject": "Anatomy",
+      "subjects_dir": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005"
+    },
+    {
+      "fif": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run4_raw.fif",
+      "inverse": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/inverse/cidmeg005_s2_run4-inv.fif",
+      "subject": "Anatomy",
+      "subjects_dir": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005"
+    },
+    {
+      "fif": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run5_raw.fif",
+      "inverse": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/inverse/cidmeg005_s2_run5-inv.fif",
+      "subject": "Anatomy",
+      "subjects_dir": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005"
+    },
+    {
+      "fif": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/ICA/cidmeg005_s2_run6_raw.fif",
+      "inverse": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005/inverse/cidmeg005_s2_run6-inv.fif",
+      "subject": "Anatomy",
+      "subjects_dir": "/scratch/g/bgross/CIDMEG_SM/data/CIDMEG005"
+    }
+  ]
+}

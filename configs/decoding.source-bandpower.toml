@@ -1,0 +1,48 @@
+# Source band-power decoding using existing inverse operators, without the GUI.
+# Fill in the four paths/names below, then run:
+# python scripts/run_concept_decoding_cli.py --config configs/decoding.source-bandpower.toml --dry-run
+# Remove --dry-run to extract source power and train/test.
+fif = ""
+source_inverse = ""
+source_subject = ""
+subjects_dir = ""
+# For multiple analysis FIFs, replace source_inverse with a source_manifest path.
+# A manifest contains a runs list of fif/inverse/subject/subjects_dir mappings.
+all_runs = false
+ica = "off"
+output_dir = ""
+feature_space = "source"
+source_space_kind = "surface" # or volume, with a matching volume inverse
+source_common_space = "native"
+source_parcellation = "aparc" # volume automatically uses aparc+aseg
+# Optional: select only regions covered by the inverse grid.
+# Surface example: source_parcels = ["ctx-lh-inferiortemporal", "ctx-lh-middletemporal"]
+# Volume example: source_parcels = ["Left-Hippocampus", "Right-Hippocampus"]
+source_parcels = []
+source_method = "MNE"
+source_snr = 3.0
+source_batch_size = 4
+
+feature_mode = "bandpower"
+source_power_bands = ["alpha", "beta"] # or ["all"]
+source_power_baseline = true # false uses log10 power instead of baseline dB
+parcel_baseline_start = -0.2
+parcel_baseline_end = 0.0
+no_feature_binning = false # true uses one power value per ROI/band/window
+bin_size_ms = 50.0
+window_start = 0.15
+window_end = 0.45
+bandpass_low_hz = 0.1
+bandpass_high_hz = 150.0
+downsample = true
+downsample_sfreq = 400.0
+
+decoder = "logistic"
+# For semantic decoding choose embedding_ridge or embedding_contrastive and set:
+embedding_dict = ""
+group_mode = "canonical"
+split_mode = "random"
+test_fraction = 0.2
+validation_fraction = 0.2
+min_trials_per_class = 2
+n_permutations = 0

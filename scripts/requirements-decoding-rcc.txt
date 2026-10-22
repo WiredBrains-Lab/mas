@@ -1,0 +1,16 @@
+# Core versions matched to the locally tested snaas analysis environment.
+# Torch 2.8.0 is installed separately by setup_decoding_env.sh (CPU or CUDA wheel).
+numpy==2.0.2
+pandas==2.2.3
+scipy==1.14.1
+scikit-learn==1.7.2
+mne==1.11.0
+matplotlib==3.10.7
+joblib==1.5.2
+h5py==3.15.1
+threadpoolctl==3.6.0
+nibabel==5.3.2
+# Readers for all trial-table formats supported by the CLI:
+openpyxl==3.1.5
+xlrd==2.0.2
+pyarrow==22.0.0

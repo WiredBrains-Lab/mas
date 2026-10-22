@@ -1,0 +1,95 @@
+# MEG decoding CLI defaults. Edit fif once, then run from any directory:
+# python scripts/run_concept_decoding_cli.py
+# Override any value with its CLI flag, e.g. --decoder template --fif /data/run.fif.
+# Keys use underscores; CLI flags use hyphens. All CLI settings can go here.
+# Relative paths are relative to THIS config file; ~ and $ENV_VAR are expanded.
+# For RCC, copy this to decoding.rcc.toml and use --config configs/decoding.rcc.toml.
+
+# Supply one FIF, or a list: fif = ["/data/run1.fif", "/data/run2.fif"]
+# Empty means you must supply --fif until you set your own default here.
+fif = ""
+# Alternatively, process all raw FIF recordings directly inside a folder:
+# fif_folder = "/data/subject/tsss"
+# Leave fif empty when using fif_folder. No prompt; does not scan subfolders.
+# CLI aliases: --fif_folder /data/subject/tsss or --fif-folder /data/subject/tsss
+# With one FIF in an interactive terminal, the CLI asks whether to include
+# other raw FIF recordings in that folder. Explicit lists do not prompt.
+# For RCC/unattended jobs set true to include neighboring runs, or false to
+# use only the specified FIFs. Omit this setting to keep the local prompt.
+# Split-file continuations are automatically loaded, not counted as extra runs.
+# all_runs = true
+# CLI equivalents: --all-runs / --no-all-runs (override this setting).
+# Empty creates a fresh timestamped decoding_results folder beside the input.
+output_dir = ""
+
+# Available decoders:
+# logistic             Logistic regression (no embedding dictionary required).
+# template             Template classifier (no embedding dictionary required).
+# mlp                  Feed-forward neural classifier.
+# pairwise_svm         Time-resolved pairwise SVM; repeats can be expensive.
+# embedding_ridge      Ridge regression to semantic embeddings.
+# embedding_contrastive Contrastive semantic embedding decoder.
+# embedding_mlp        Nonlinear semantic embedding decoder.
+# transformer          Transformer semantic decoder.
+# The semantic choices require embedding_dict below.
+decoder = "logistic"
+embedding_dict = ""
+
+# canonical: concept names; individual: individual images; category: groups;
+# semantic_decision: block instruction line_2 matched to each trial by block_id.
+# Category labels use ../stimulus_with_groups.csv or --stimulus-group-map.
+group_mode = "canonical"
+
+# auto: create/reuse ICA-cleaned derivatives of FIFs in tsss/sss folders,
+#       matching GUI processing. Trial caches live beside the ANALYSIS FIF,
+#       so tSSS input may produce ../ica/run.fif.trial_table.csv.
+# off: use the supplied FIF directly (e.g. already-cleaned data).
+ica = "auto"
+# Reuse valid trial tables by default. Set true or use --rebuild-trial-table
+# after intentional manual changes that should force regeneration.
+rebuild_trial_table = false
+
+# Shared decoder preprocessing; values can be overridden on the command line.
+window_start = 0.15
+window_end = 0.45
+bandpass_low_hz = 0.1
+bandpass_high_hz = 150.0
+downsample = true
+downsample_sfreq = 400.0
+no_feature_binning = true
+channel_mode = "all" # all, mag, grad
+# random, leave_one_run, leave_one_session, zero_shot (semantic decoders only).
+split_mode = "random"
+n_permutations = 99
+# Set to the CPU allocation for RCC jobs. 0 leaves runtime defaults.
+torch_num_threads = 0
+# Optional persistent decoder epoch cache; separate from the trial-table cache.
+epoch_cache_dir = ""
+# Optional neural decoder settings:
+# epochs = 50
+# avg_trials = 5
+# task_stratified_pseudo_epochs = true
+# batch_size = 16
+# Equalize semantic-decoder training pseudo-epochs across labels while keeping
+# all validation/test data. Extra majority-class trials rotate across epochs.
+# balance_classes = true
+# Best-epoch choices: top1, balanced_top1, mpr, balanced_mpr.
+# embedding_validation_metric = "balanced_mpr"
+# Optional pairwise settings:
+# pairwise_supertrial_size = 6
+# pairwise_repeats = 100
+# Validation / preparation commands:
+# --prepare-only  : ICA + reusable tables, no training and no result directory.
+# --dry-run       : prepare and validate label counts, no training.
+# --no-config     : bypass these defaults and use built-in CLI defaults.
+
+# Resume a saved exhaustive-screening batch (leave fif/fif_folder empty).
+# resume = "/data/ICA/concept_decoding_outputs/batch_selected_parcel_subsets"
+# Optional locations to find relocated dependencies:
+# resume_search_root = ["/data/WBL"]
+# Saved batch model/split settings take precedence over this config on resume.
+
+# Parallel exhaustive resume on CPUs (optional; default is sequential).
+# subset_workers = 4
+# subset_worker_threads = 1
+# Request at least their product in Slurm CPUs, plus RAM per worker.

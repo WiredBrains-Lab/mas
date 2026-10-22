@@ -1,0 +1,62 @@
+# HPC configuration for Zenodo MEG Picture Naming: 6-Class Exemplar Decoding.
+#
+# Classifies all 6 individual concepts (sushi, dumplings, cookies, comb, knife, pencil).
+# Ground truth chance is 16.7% (1/6).
+#
+# Run from the MAS project root:
+#   python -u scripts/run_concept_decoding_cli.py \
+#     --config configs/decoding.zenodo-exemplars.hpc.toml
+
+# Visual image presentation trial table
+trial_table = "/scratch/g/bgross/CIDMEG_SM/data/meg_picture_naming/trials_step1_visual.csv"
+
+# Output directory for 6-class exemplar predictions, confusion matrix, and metrics
+output_dir = "/scratch/g/bgross/CIDMEG_SM/data/meg_picture_naming/decoding_results_exemplars"
+
+# Decoding target:
+#   "individual": 6-class classification (sushi, dumplings, cookies, comb, knife, pencil)
+group_mode = "individual"
+
+# Decoder choice:
+#   "logistic": Multinomial L2-regularized logistic regression
+#   "pairwise_svm": Pairwise linear SVM with supertrial averaging
+#   "mlp": Multi-layer perceptron neural network
+decoder = "logistic"
+epochs = 30
+
+# Cross-validation / data split
+split_mode = "random"
+test_fraction = 0.2
+validation_fraction = 0.2
+min_trials_per_class = 2
+
+# Temporal window (relative to visual stimulus onset: 0 to 1000 ms)
+window_start = 0.0
+window_end = 1.0
+
+# Channel selection: all 64 MEG channels
+channel_mode = "all"
+max_channels = 0
+
+# Signal preprocessing & feature extraction
+bandpass_low_hz = 0.1
+bandpass_high_hz = 150.0
+downsample = true
+downsample_sfreq = 400.0
+no_feature_binning = false
+bin_size_ms = 50.0
+
+# Baseline correction & artifact rejection
+no_baseline = false
+no_mne_epoch_reject = false
+reject_mag_ft = 5000.0
+reject_grad_ft_cm = 5000.0
+include_trial_outliers = false
+trial_outlier_z = 6.0
+min_trials_for_outlier_qc = 8
+
+# Persistent cache directory for continuous downsampled/filtered recordings
+epoch_cache_dir = "/scratch/g/bgross/CIDMEG_SM/mas_epoch_cache"
+
+# Threads per task
+torch_num_threads = 4

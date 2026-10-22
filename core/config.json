@@ -1,0 +1,53 @@
+{
+    "dark_mode": true,
+    "psd": {
+        "cmb_params": {
+            "channel": [
+                "meg",
+                "grad",
+                "mag",
+                "eeg",
+                "analog"
+            ],
+            "psd_1_x": [
+                "10 kHz",
+                "5 kHz",
+                "1 kHz"
+            ],
+            "psd_2_x": [
+                "300 Hz",
+                "600 Hz",
+                "150 Hz"
+            ]
+        },
+        "spb_params": {
+            "filt_order": [
+                2,
+                2,
+                20,
+                1
+            ],
+            "rp": [
+                0.1,
+                0.1,
+                5,
+                0.1
+            ],
+            "rs": [
+                40,
+                0,
+                40,
+                1
+            ]
+        },
+        "chk_params": {
+            "raw": true,
+            "filtered": true,
+            "show_avg": true,
+            "auto_refresh": true,
+            "apply_notches": true,
+            "view_notches": true,
+            "matlab_notches": false
+        }
+    }
+}

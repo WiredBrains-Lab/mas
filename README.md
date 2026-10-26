@@ -8,6 +8,10 @@
 
 MAS couples an interactive PyQt5 / PyVista desktop interface for continuous recording exploration, evoked field analysis, and 3D sensor coregistration with a high-throughput CLI and HPC pipeline for neural concept decoding across sensor and source space.
 
+<p align="center">
+  <img src="docs/images/mas_gui.png" alt="MEG Analysis Suite Desktop Interface" width="100%"/>
+</p>
+
 ---
 
 ## Key Capabilities

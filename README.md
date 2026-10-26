@@ -200,5 +200,5 @@ python -m sphinx -M html docs/source docs/build
 
 ## License & Attribution
 
-Developed by the **Wired Brains Lab**, Department of Neurosurgery, Medical College of Wisconsin.  
+Developed by **Wired Brains Lab**, Medical College of Wisconsin.  
 For research inquiries, issues, or contributions, please open an issue on the repository or contact the lab.
